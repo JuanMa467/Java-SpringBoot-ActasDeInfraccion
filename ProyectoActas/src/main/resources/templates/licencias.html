@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head><meta charset="UTF-8"><title>Licencias</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<style>body{background:#f0f2f5}.sidebar{min-height:100vh;background:#1a2332}.sidebar .nav-link{color:#adb5bd;border-radius:8px;margin:2px 8px;transition:all .2s}.sidebar .nav-link:hover,.sidebar .nav-link.active{background:#0d6efd;color:#fff}.brand{color:#fff;font-weight:700;font-size:1.1rem;border-bottom:1px solid #2d3f57}.content-area{padding:2rem}.table th{font-size:.8rem;text-transform:uppercase;color:#6c757d;background:#f8f9fa}</style>
+</head>
+<body>
+<div class="d-flex">
+<div class="sidebar d-flex flex-column p-3" style="width:240px;min-width:240px">
+<div class="brand p-2 mb-3"><i class="bi bi-file-earmark-text me-2"></i>Sistema de Actas</div>
+<nav class="nav flex-column gap-1"><a href="/" class="nav-link "><i class="bi bi-house me-2"></i>Inicio</a>
+<a href="/actas" class="nav-link "><i class="bi bi-file-text me-2"></i>Actas</a>
+<a href="/conductores" class="nav-link "><i class="bi bi-person me-2"></i>Conductores</a>
+<a href="/vehiculos" class="nav-link "><i class="bi bi-car-front me-2"></i>Vehículos</a>
+<a href="/infracciones" class="nav-link "><i class="bi bi-exclamation-triangle me-2"></i>Infracciones</a>
+<a href="/rutas" class="nav-link "><i class="bi bi-signpost me-2"></i>Rutas</a>
+<hr class="border-secondary"><small class="text-secondary px-2 mb-1">Configuración</small>
+<a href="/marcas" class="nav-link "><i class="bi bi-tag me-2"></i>Marcas</a>
+<a href="/modelos" class="nav-link "><i class="bi bi-gear me-2"></i>Modelos</a>
+<a href="/licencias" class="nav-link active"><i class="bi bi-card-text me-2"></i>Licencias</a>
+<a href="/organizaciones" class="nav-link "><i class="bi bi-building me-2"></i>Organizaciones</a>
+<a href="/autoridades" class="nav-link "><i class="bi bi-shield me-2"></i>Autoridades</a>
+<a href="/tipos-infraccion" class="nav-link "><i class="bi bi-list-check me-2"></i>Tipos de Infracción</a>
+<a href="/tipos-ruta" class="nav-link "><i class="bi bi-map me-2"></i>Tipos de Ruta</a>
+</nav></div>
+<div class="flex-grow-1 content-area">
+<div class="d-flex justify-content-between align-items-center mb-4">
+<div><h2 class="fw-bold mb-0">Licencias</h2></div>
+<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalForm"><i class="bi bi-plus-lg me-1"></i>Nuevo/a</button>
+</div>
+<div id="alerta" class="d-none"></div>
+<div class="card border-0 shadow-sm rounded-3"><div class="card-body p-0">
+<div class="p-3 border-bottom"><input id="busqueda" type="text" class="form-control form-control-sm w-auto" placeholder="Buscar..."></div>
+<div class="table-responsive"><table class="table table-hover align-middle mb-0">
+<thead><tr><th class="ps-3">ID</th><th>Conductor</th><th>Fecha Vto.</th><th>Puntos</th><th>Acciones</th></tr></thead>
+<tbody id="tablaData"><tr><td colspan="10" class="text-center py-4 text-muted">Cargando...</td></tr></tbody>
+</table></div></div></div>
+</div></div>
+<div class="modal fade" id="modalForm" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+<div class="modal-header"><h5 class="modal-title fw-bold" id="tituloModal">Licencias</h5>
+<button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+<div class="modal-body"><input type="hidden" id="itemId"><div class="row g-3"><div class="col-md-6"><label class="form-label fw-semibold">Conductor</label><select id="selConductor" class="form-select"><option value="">-- Seleccionar --</option></select></div><div class="col-md-6"><label class="form-label fw-semibold">Fecha Vencimiento</label><input type="date" id="fechaDeVto" class="form-control"></div><div class="col-md-6"><label class="form-label fw-semibold">Puntos Iniciales</label><input type="number" id="puntosInicialesLicencia" class="form-control" placeholder="0"></div></div></div>
+<div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+<button class="btn btn-primary" id="btnGuardar"><i class="bi bi-save me-1"></i>Guardar</button></div>
+</div></div></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+const API='http://localhost:9000/api/v1';let datos=[];
+function alerta(msg,t='success'){const a=document.getElementById('alerta');a.className=`alert alert-${t} alert-dismissible fade show`;a.innerHTML=msg+`<button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;}
+async function cargar(){try{const r=await fetch(`${API}/Licencias`);datos=await r.json();renderTabla(datos);}catch{document.getElementById('tablaData').innerHTML='<tr><td colspan="10" class="text-center text-danger py-4">Error al conectar con la API.</td></tr>';}}
+function renderTabla(arr){const t=document.getElementById('tablaData');if(!arr.length){t.innerHTML='<tr><td colspan="10" class="text-center py-4 text-muted">No hay datos</td></tr>';return;}
+t.innerHTML=arr.map(i=>`<tr><td class="ps-3 text-muted small">#${i.id}</td><td>${i.conductor?i.conductor.nombre+" "+i.conductor.apellido:"-"}</td><td>${i.fechaDeVto||"-"}</td><td>${i.puntosInicialesLicencia||0}</td><td><button class="btn btn-sm btn-outline-warning me-1" onclick="editar(${i.id})"><i class="bi bi-pencil"></i></button><button class="btn btn-sm btn-outline-danger" onclick="eliminar(${i.id})"><i class="bi bi-trash"></i></button></td></tr>`).join('');}
+async function cargarConductores(){try{const r=await fetch(`${API}/Conductores`);const cs=await r.json();const s=document.getElementById('selConductor');cs.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.nombre+" "+c.apellido+" (DNI: "+c.dni+")";s.appendChild(o);});}catch{}}
+function editar(id){const i=datos.find(x=>x.id===id);if(!i)return;document.getElementById('itemId').value=i.id;document.getElementById('fechaDeVto').value=i.fechaDeVto||'';document.getElementById('puntosInicialesLicencia').value=i.puntosInicialesLicencia||0;document.getElementById('selConductor').value=i.conductor?i.conductor.id:'';new bootstrap.Modal(document.getElementById('modalForm')).show();}
+document.getElementById('modalForm').addEventListener('hidden.bs.modal',()=>{document.getElementById('itemId').value='';['fechaDeVto','puntosInicialesLicencia'].forEach(x=>document.getElementById(x).value='');document.getElementById('selConductor').value='';});
+cargarConductores();
+document.getElementById('btnGuardar').addEventListener('click',async()=>{const editId=document.getElementById('itemId').value;const body={fechaDeVto:document.getElementById("fechaDeVto").value||null,puntosInicialesLicencia:parseInt(document.getElementById("puntosInicialesLicencia").value)||0,conductor:document.getElementById("selConductor").value?{id:parseInt(document.getElementById("selConductor").value)}:null};const url=editId?`${API}/Licencias/${editId}`:`${API}/Licencias`;const method=editId?'PUT':'POST';try{const r=await fetch(url,{method,headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});if(r.ok){bootstrap.Modal.getInstance(document.getElementById('modalForm')).hide();alerta('Guardado correctamente.');cargar();}else{alerta('Error al guardar.','danger');}}catch{alerta('Error de conexión.','danger');}});
+async function eliminar(id){if(!confirm('¿Eliminar?'))return;try{await fetch(`${API}/Licencias/${id}`,{method:'DELETE'});alerta('Eliminado.');cargar();}catch{alerta('Error.','danger');}}
+document.getElementById('busqueda').addEventListener('input',function(){const q=this.value.toLowerCase();renderTabla(datos.filter(i=>(i.conductor?(i.conductor.nombre+" "+i.conductor.apellido):"").toLowerCase().includes(q)));});
+cargar();
+</script>
+</body></html>
