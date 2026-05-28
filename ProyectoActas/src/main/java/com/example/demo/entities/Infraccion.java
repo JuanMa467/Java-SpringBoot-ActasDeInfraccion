@@ -20,7 +20,7 @@ public class Infraccion extends Base {
     @Column(name = "importe_infraccion")
     private double importeInfraccion;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "infraccion_nomenclada",
         joinColumns = @JoinColumn(name = "infraccion_id"),

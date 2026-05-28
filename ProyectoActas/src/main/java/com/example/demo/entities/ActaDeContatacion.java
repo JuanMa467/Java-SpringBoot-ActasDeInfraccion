@@ -56,7 +56,7 @@ public class ActaDeContatacion extends Base {
     @JoinColumn(name = "autoridad_id")
     private AutoridadDeContatacion autoridad;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "estado_id")
     private EstadoDelActa estado;
 

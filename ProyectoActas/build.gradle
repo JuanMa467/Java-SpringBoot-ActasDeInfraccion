@@ -20,14 +20,34 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'com.mysql:mysql-connector-j'
+	runtimeOnly 'com.h2database:h2'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
+
+def frontendDir = file("${projectDir}/../Front-end")
+
+tasks.register('buildFrontend', Exec) {
+	workingDir frontendDir
+	if (System.getProperty('os.name').toLowerCase().contains('windows')) {
+		commandLine 'cmd', '/c', 'npm', 'run', 'build'
+	} else {
+		commandLine 'npm', 'run', 'build'
+	}
+}
+
+tasks.register('copyFrontend', Copy) {
+	dependsOn buildFrontend
+	from "${frontendDir}/dist"
+	into "${projectDir}/src/main/resources/static"
+}
+
+processResources.dependsOn copyFrontend
+bootJar.dependsOn copyFrontend
 
 tasks.named('test') {
 	useJUnitPlatform()

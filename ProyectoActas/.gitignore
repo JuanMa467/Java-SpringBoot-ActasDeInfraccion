@@ -35,3 +35,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### React build (generado por Gradle copyFrontend) ###
+src/main/resources/static/

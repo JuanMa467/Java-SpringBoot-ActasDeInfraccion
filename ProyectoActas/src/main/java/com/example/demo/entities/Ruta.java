@@ -17,7 +17,7 @@ public class Ruta extends Base {
     @Column(name = "km_ruta")
     private String kmRuta;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "tipo_ruta_id")
     private TipoRuta tipoRuta;
 
