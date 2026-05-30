@@ -3,6 +3,8 @@ package com.example.demo.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +32,7 @@ public class Infraccion extends Base {
 
     @ManyToOne
     @JoinColumn(name = "acta_id")
+    @JsonIgnoreProperties("infraccion")
     private ActaDeContatacion acta;
 
     public List<TipoDeInfraccion> getTipoDeInfraccion() {

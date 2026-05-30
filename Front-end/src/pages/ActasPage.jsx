@@ -75,13 +75,24 @@ export default function ActasPage() {
   }, [showForm]);
 
   const buscar = (q) => {
-    const lower = q.toLowerCase();
+    const lower = q.toLowerCase().trim();
+    if (!lower) {
+      setFiltrados(datos);
+      return;
+    }
     setFiltrados(
-      datos.filter(
-        (a) =>
-          (a.lugarDeConstatacion || '').toLowerCase().includes(lower) ||
-          String(a.idActa).includes(q),
-      ),
+      datos.filter((a) => {
+        const idMatches = String(a.id) === lower || lower === `#${a.id}`;
+        const idActaMatches = String(a.idActa).startsWith(lower);
+        const lugarMatches = (a.lugarDeConstatacion || '').toLowerCase().includes(lower);
+        
+        const conductorNombre = a.conductor ? `${a.conductor.nombre} ${a.conductor.apellido}`.toLowerCase() : '';
+        const conductorMatches = conductorNombre.includes(lower);
+        
+        const vehiculoMatches = a.vehiculo ? (a.vehiculo.dominio || '').toLowerCase().includes(lower) : false;
+
+        return idMatches || idActaMatches || lugarMatches || conductorMatches || vehiculoMatches;
+      })
     );
   };
 
@@ -130,9 +141,13 @@ export default function ActasPage() {
     }
     if (!form.conductor.nombre.trim()) {
       newErrors.conductorNombre = 'Completá el nombre del conductor.';
+    } else if (/\d/.test(form.conductor.nombre)) {
+      newErrors.conductorNombre = 'El nombre no puede contener números.';
     }
     if (!form.conductor.apellido.trim()) {
       newErrors.conductorApellido = 'Completá el apellido del conductor.';
+    } else if (/\d/.test(form.conductor.apellido)) {
+      newErrors.conductorApellido = 'El apellido no puede contener números.';
     }
     if (!form.conductor.dni || isNaN(form.conductor.dni) || parseInt(form.conductor.dni, 10) <= 0) {
       newErrors.conductorDni = 'Ingresá un DNI válido para el conductor.';
@@ -154,12 +169,27 @@ export default function ActasPage() {
     }
     if (!form.autoridad.nombre.trim()) {
       newErrors.autoridadNombre = 'Completá el nombre de la autoridad.';
+    } else if (/\d/.test(form.autoridad.nombre)) {
+      newErrors.autoridadNombre = 'El nombre no puede contener números.';
     }
     if (!form.autoridad.apellido.trim()) {
       newErrors.autoridadApellido = 'Completá el apellido de la autoridad.';
+    } else if (/\d/.test(form.autoridad.apellido)) {
+      newErrors.autoridadApellido = 'El apellido no puede contener números.';
     }
     if (!form.autoridad.dni || isNaN(form.autoridad.dni) || parseInt(form.autoridad.dni, 10) <= 0) {
       newErrors.autoridadDni = 'Ingresá un DNI válido para la autoridad.';
+    }
+
+    const tieneNumeros = 
+      ((form.conductor?.nombre || '').trim() && /\d/.test(form.conductor?.nombre || '')) ||
+      ((form.conductor?.apellido || '').trim() && /\d/.test(form.conductor?.apellido || '')) ||
+      ((form.autoridad?.nombre || '').trim() && /\d/.test(form.autoridad?.nombre || '')) ||
+      ((form.autoridad?.apellido || '').trim() && /\d/.test(form.autoridad?.apellido || ''));
+
+    if (tieneNumeros) {
+      window.alert('El nombre o apellido del conductor/autoridad no puede contener números.');
+      showAlert('El nombre o el apellido no pueden contener números.', 'danger');
     }
 
     if (Object.keys(newErrors).length > 0) {

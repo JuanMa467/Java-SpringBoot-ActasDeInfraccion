@@ -3,6 +3,8 @@ package com.example.demo.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +18,7 @@ import java.util.List;
 public class ActaDeContatacion extends Base {
 
     @OneToMany(mappedBy = "acta", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("acta")
     private List<Infraccion> infraccion = new ArrayList<>();
 
     @Column(name = "fecha_de_labrado")

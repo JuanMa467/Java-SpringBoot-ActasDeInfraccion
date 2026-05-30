@@ -53,8 +53,27 @@ export default function InfraccionesPage() {
   }, [cargar]);
 
   const buscar = (q) => {
-    const lower = q.toLowerCase();
-    setFiltrados(datos.filter((i) => (i.descripInfraccion || '').toLowerCase().includes(lower)));
+    const lower = q.toLowerCase().trim();
+    if (!lower) {
+      setFiltrados(datos);
+      return;
+    }
+    setFiltrados(
+      datos.filter((i) => {
+        const idMatches = String(i.id) === lower || lower === `#${i.id}`;
+        const descMatches = (i.descripInfraccion || '').toLowerCase().includes(lower);
+        
+        const tipoMatches = i.infraccionNomenclada && i.infraccionNomenclada.length > 0
+          ? (i.infraccionNomenclada[0].descrInfrac || '').toLowerCase().includes(lower)
+          : false;
+          
+        const actaMatches = i.acta
+          ? String(i.acta.idActa || i.acta.id).startsWith(lower)
+          : false;
+
+        return idMatches || descMatches || tipoMatches || actaMatches;
+      })
+    );
   };
 
   const abrirNuevo = () => {
