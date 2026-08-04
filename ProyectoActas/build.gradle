@@ -34,9 +34,9 @@ def frontendDir = file("${projectDir}/../Front-end")
 tasks.register('buildFrontend', Exec) {
 	workingDir frontendDir
 	if (System.getProperty('os.name').toLowerCase().contains('windows')) {
-		commandLine 'cmd', '/c', 'npm', 'run', 'build'
+		commandLine 'cmd', '/c', 'npm install && npm run build'
 	} else {
-		commandLine 'npm', 'run', 'build'
+		commandLine 'sh', '-c', 'npm install && npm run build'
 	}
 }
 
