@@ -14,7 +14,7 @@ RUN chmod +x ProyectoActas/gradlew && cd ProyectoActas && ./gradlew bootJar -x t
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
-COPY --from=build /app/ProyectoActas/build/libs/ProyectoActas-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=build /app/ProyectoActas/build/libs/*.jar app.jar
 
 EXPOSE 9000
 
